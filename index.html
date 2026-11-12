@@ -2,71 +2,136 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عرض بيانات Telegram API</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Telegram User Finder | Client Interface</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  body { background: #0d1a1f; color: #eaf2f0; font-family: 'IBM Plex Sans Arabic', sans-serif; padding: 20px; display: flex; justify-content: center; }
-  .container { width: 100%; max-width: 600px; background: #13262d; border: 1px solid #24404a; border-radius: 14px; padding: 20px; }
-  h2 { color: #f2b84b; margin-bottom: 15px; font-size: 18px; }
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #24404a; }
-  .row:last-child { border-bottom: 0; }
-  .k { color: #8fa7ad; font-size: 13px; }
-  .v { font-family: 'IBM Plex Mono', monospace; font-size: 14px; direction: ltr; color: #eaf2f0; }
-  .copy { background: transparent; border: 1px solid #24404a; color: #f2b84b; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
-  .copy.done { color: #5fd0a0; border-color: #5fd0a0; }
-  .loading { text-align: center; color: #8fa7ad; padding: 20px; }
+:root{
+  --ink:#0d1a1f; --panel:#13262d; --line:#24404a; --text:#eaf2f0; --muted:#8fa7ad;
+  --amber:#f2b84b; --amber-dim:rgba(242,184,75,.14); --ok:#5fd0a0; --danger:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;line-height:1.7;padding:20px 14px 40px}
+.wrap{max-width:680px;margin:0 auto}
+
+header{padding:18px 4px 22px;border-bottom:1px solid var(--line);margin-bottom:20px;text-align:center}
+.tag{display:inline-block;font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-dim);padding:3px 14px;border-radius:99px;margin-bottom:10px}
+h1{font-size:30px;font-weight:700;margin-bottom:6px}
+header p{color:var(--muted);font-size:14px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px}
+.card h2{font-size:17px;font-weight:600;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input{width:100%;padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:var(--ink);color:var(--text);font:500 16px 'IBM Plex Mono',monospace;direction:ltr;text-align:left;margin-bottom:14px}
+input:focus{outline:2px solid var(--amber);outline-offset:2px}
+
+.btn{width:100%;padding:14px;border:0;border-radius:10px;background:var(--amber);color:#1a1405;font:700 16px 'IBM Plex Sans Arabic',sans-serif;cursor:pointer;transition:0.2s}
+.btn:hover{opacity:0.92}
+.btn-secondary{background:transparent;border:1px solid var(--amber);color:var(--amber);margin-top:10px}
+
+.steps{font-size:13px;color:var(--muted);margin-top:14px;background:rgba(0,0,0,0.2);padding:12px;border-radius:10px;border:1px dashed var(--line)}
+.steps strong{color:var(--amber)}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.k{font-size:13px;color:var(--muted);font-weight:600}
+.v{display:flex;align-items:center;gap:10px;direction:ltr;font:500 14px 'IBM Plex Mono',monospace;color:var(--text)}
+.copy{font:600 12px 'IBM Plex Sans Arabic',sans-serif;padding:4px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--amber);cursor:pointer}
+.copy.done{color:var(--ok);border-color:var(--ok)}
+.error{color:var(--danger);text-align:center;font-weight:600;padding:10px}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="container">
-  <h2>نتيجة جلب البيانات من الـ API</h2>
-  <div id="resultArea" class="loading">جاري جلب البيانات من الخادم...</div>
+<header>
+  <span class="tag">API CLIENT INTERFACE</span>
+  <h1>استعلام بيانات تيليجرام</h1>
+  <p>أدخل معرف المستخدم أو اليوزر نيم لجلب البيانات عبر خدمة الـ API</p>
+</header>
+
+<section class="card">
+  <h2>بيانات البحث</h2>
+  <label for="queryInput">User ID أو Username</label>
+  <input id="queryInput" placeholder="مثال: 111331762 أو continentalway1">
+
+  <button class="btn" onclick="openApiWindow()">جلب البيانات عبر الـ API</button>
+  
+  <div class="steps">
+    <strong>طريقة الاستخدام:</strong><br>
+    1. اضغط على زر <b>"جلب البيانات عبر الـ API"</b> لفتح رابط الاستعلام.<br>
+    2. في أول مرتين سيفتح لك رابط إعلاني لدعم الخدمة، في المرة الثالثة ستظهر لك البيانات بصيغة JSON.<br>
+    3. انسخ كود الـ JSON الناتج والصقه في الخانة بالأسفل لعرضه بشكل منسق (أو اقرأه مباشرة من الصفحة).
+  </div>
+</section>
+
+<!-- قسم قراءة وتنسيق الـ JSON للمستخدم -->
+<section class="card">
+  <h2>عارض البيانات المنسق (JSON Parser)</h2>
+  <label for="jsonPaste">الصق كود الـ JSON الذي ظهر لك هنا لعرضه بشكل منظم:</label>
+  <input id="jsonPaste" placeholder='{"status":true,"data":{...}}' oninput="parseAndDisplay()">
+  <div id="formattedOutput"></div>
+</section>
+
 </div>
 
 <script>
-async function fetchApiData() {
-  const resultArea = document.getElementById('resultArea');
-  
-  // رابط موقعك الأول (api.html) مع تحديد المعرف المطلوب استعلامه
-  // يمكنك تغيير الرابط أدناه إلى رابط الـ api.html الفعلي الخاص بك
-  const targetIdOrUser = "111331762"; // أو أعد قراءته من رابط هذا الموقع لو أردت
-  const apiUrl = `api.html?id=${targetIdOrUser}`;
+// رابط ملف api.html على موقعك الأول
+const API_BASE_URL = "https://host895.github.io/telegram_data1/api.html";
+
+function openApiWindow() {
+  let q = document.getElementById("queryInput").value.trim();
+  if (!q) {
+    alert("من فضلك اكتب User ID أو Username الأول!");
+    return;
+  }
+
+  if (q.startsWith("@")) {
+    q = q.substring(1);
+  }
+
+  // تحديد هل الإدخال رقم (ID) أم نص (Username)
+  const isId = /^\d+$/.test(q);
+  const fullUrl = isId 
+    ? `${API_BASE_URL}?id=${encodeURIComponent(q)}` 
+    : `${API_BASE_URL}?user=${encodeURIComponent(q)}`;
+
+  // فتح رابط الـ API في تبويب جديد عشان يعدي الإعلانين ويعرض الـ JSON في الثالثة
+  window.open(fullUrl, "_blank");
+}
+
+function parseAndDisplay() {
+  const raw = document.getElementById("jsonPaste").value.trim();
+  const out = document.getElementById("formattedOutput");
+
+  if (!raw) {
+    out.innerHTML = "";
+    return;
+  }
 
   try {
-    const response = await fetch(apiUrl);
-    const textData = await response.text();
-    
-    // محاولة تحويل الناتج إلى JSON
-    let json;
-    try {
-      json = JSON.parse(textData);
-    } catch(e) {
-      // إذا كان الناتج محولاً للإعلان أو غير جاهز
-      resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">عذراً، يرجى إتمام زيارة صفحة الـ API مباشرة أولاً لتخطى الإعلانات.</div>`;
+    const parsed = JSON.parse(raw);
+    if (!parsed.status || !parsed.data) {
+      out.innerHTML = `<div class="error">${parsed.error || "لا توجد بيانات صالحة في هذا الكود"}</div>`;
       return;
     }
 
-    if(!json.status){
-      resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">لم يتم العثور على البيانات أو حدث خطأ.</div>`;
-      return;
-    }
-
-    const d = json.data;
-    resultArea.innerHTML = `
-      <div class="row"><span class="k">User ID</span><span class="v">${d.userId}<button class="copy" onclick="copyText('${d.userId}', this)">نسخ</button></span></div>
-      <div class="row"><span class="k">Full Name</span><span class="v">${d.fullName}<button class="copy" onclick="copyText('${d.fullName}', this)">نسخ</button></span></div>
-      <div class="row"><span class="k">Username</span><span class="v">${d.username}<button class="copy" onclick="copyText('${d.username}', this)">نسخ</button></span></div>
-      <div class="row"><span class="k">Phone Number</span><span class="v">${d.phone}<button class="copy" onclick="copyText('${d.phone}', this)">نسخ</button></span></div>
-      <div class="row"><span class="k">Last Online</span><span class="v">${d.wasOnline}<button class="copy" onclick="copyText('${d.wasOnline}', this)">نسخ</button></span></div>
+    const d = parsed.data;
+    out.innerHTML = `
+      <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">
+        <div class="row"><span class="k">User ID</span><span class="v">${escapeHtml(d.userId)}<button class="copy" onclick="copyVal('${escapeHtml(d.userId)}', this)">نسخ</button></span></div>
+        <div class="row"><span class="k">Full Name</span><span class="v">${escapeHtml(d.fullName)}<button class="copy" onclick="copyVal('${escapeHtml(d.fullName)}', this)">نسخ</button></span></div>
+        <div class="row"><span class="k">Username</span><span class="v">${escapeHtml(d.username)}<button class="copy" onclick="copyVal('${escapeHtml(d.username)}', this)">نسخ</button></span></div>
+        <div class="row"><span class="k">Phone Number</span><span class="v">${escapeHtml(d.phone)}<button class="copy" onclick="copyVal('${escapeHtml(d.phone)}', this)">نسخ</button></span></div>
+        <div class="row"><span class="k">Last Online</span><span class="v">${escapeHtml(d.wasOnline)}<button class="copy" onclick="copyVal('${escapeHtml(d.wasOnline)}', this)">نسخ</button></span></div>
+      </div>
     `;
-  } catch (err) {
-    resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">فشل الاتصال بالـ API.</div>`;
+  } catch (e) {
+    out.innerHTML = `<div class="error">كود JSON غير مكتمل أو غير صحيح</div>`;
   }
 }
 
-function copyText(text, btn){
+function copyVal(text, btn) {
   navigator.clipboard.writeText(text);
   btn.textContent = "تم";
   btn.classList.add("done");
@@ -76,7 +141,11 @@ function copyText(text, btn){
   }, 1200);
 }
 
-fetchApiData();
+function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
 </script>
 </body>
 </html>
