@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عرض بيانات Telegram API</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  body { background: #0d1a1f; color: #eaf2f0; font-family: 'IBM Plex Sans Arabic', sans-serif; padding: 20px; display: flex; justify-content: center; }
+  .container { width: 100%; max-width: 600px; background: #13262d; border: 1px solid #24404a; border-radius: 14px; padding: 20px; }
+  h2 { color: #f2b84b; margin-bottom: 15px; font-size: 18px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #24404a; }
+  .row:last-child { border-bottom: 0; }
+  .k { color: #8fa7ad; font-size: 13px; }
+  .v { font-family: 'IBM Plex Mono', monospace; font-size: 14px; direction: ltr; color: #eaf2f0; }
+  .copy { background: transparent; border: 1px solid #24404a; color: #f2b84b; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+  .copy.done { color: #5fd0a0; border-color: #5fd0a0; }
+  .loading { text-align: center; color: #8fa7ad; padding: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>نتيجة جلب البيانات من الـ API</h2>
+  <div id="resultArea" class="loading">جاري جلب البيانات من الخادم...</div>
+</div>
+
+<script>
+async function fetchApiData() {
+  const resultArea = document.getElementById('resultArea');
+  
+  // رابط موقعك الأول (api.html) مع تحديد المعرف المطلوب استعلامه
+  // يمكنك تغيير الرابط أدناه إلى رابط الـ api.html الفعلي الخاص بك
+  const targetIdOrUser = "111331762"; // أو أعد قراءته من رابط هذا الموقع لو أردت
+  const apiUrl = `api.html?id=${targetIdOrUser}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const textData = await response.text();
+    
+    // محاولة تحويل الناتج إلى JSON
+    let json;
+    try {
+      json = JSON.parse(textData);
+    } catch(e) {
+      // إذا كان الناتج محولاً للإعلان أو غير جاهز
+      resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">عذراً، يرجى إتمام زيارة صفحة الـ API مباشرة أولاً لتخطى الإعلانات.</div>`;
+      return;
+    }
+
+    if(!json.status){
+      resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">لم يتم العثور على البيانات أو حدث خطأ.</div>`;
+      return;
+    }
+
+    const d = json.data;
+    resultArea.innerHTML = `
+      <div class="row"><span class="k">User ID</span><span class="v">${d.userId}<button class="copy" onclick="copyText('${d.userId}', this)">نسخ</button></span></div>
+      <div class="row"><span class="k">Full Name</span><span class="v">${d.fullName}<button class="copy" onclick="copyText('${d.fullName}', this)">نسخ</button></span></div>
+      <div class="row"><span class="k">Username</span><span class="v">${d.username}<button class="copy" onclick="copyText('${d.username}', this)">نسخ</button></span></div>
+      <div class="row"><span class="k">Phone Number</span><span class="v">${d.phone}<button class="copy" onclick="copyText('${d.phone}', this)">نسخ</button></span></div>
+      <div class="row"><span class="k">Last Online</span><span class="v">${d.wasOnline}<button class="copy" onclick="copyText('${d.wasOnline}', this)">نسخ</button></span></div>
+    `;
+  } catch (err) {
+    resultArea.innerHTML = `<div style="color:#f87171; text-align:center;">فشل الاتصال بالـ API.</div>`;
+  }
+}
+
+function copyText(text, btn){
+  navigator.clipboard.writeText(text);
+  btn.textContent = "تم";
+  btn.classList.add("done");
+  setTimeout(() => {
+    btn.textContent = "نسخ";
+    btn.classList.remove("done");
+  }, 1200);
+}
+
+fetchApiData();
+</script>
+</body>
+</html>
